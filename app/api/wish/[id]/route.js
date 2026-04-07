@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
-import db from '../../../../lib/db';
+import { getWish } from '../../../../lib/kv';
 
 export async function GET(request, { params }) {
   const unwrappedParams = await params;
   const id = unwrappedParams.id;
   
   try {
-    const stmt = db.prepare('SELECT * FROM wishes WHERE id = ?');
-    const wish = stmt.get(id);
+    const wish = await getWish(id);
     
     if (!wish) {
       return NextResponse.json({ detail: 'Wish not found' }, { status: 404 });
@@ -15,7 +14,7 @@ export async function GET(request, { params }) {
     
     return NextResponse.json(wish);
   } catch (error) {
-    console.error(error);
+    console.error('API Error (GET):', error);
     return NextResponse.json({ detail: 'Failed to fetch wish' }, { status: 500 });
   }
 }

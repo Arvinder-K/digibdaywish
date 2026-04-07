@@ -10,7 +10,13 @@ export default function Step3Share({ formData, prevStep }) {
   const [error, setError] = useState("");
 
   const themeColor = formData.theme_color || "#a855f7";
-  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/w/${wishId}` : "";
+  
+  // 🌐 Production Domain Handling
+  const baseUrl = typeof window !== "undefined" && window.location.hostname === "localhost" 
+    ? window.location.origin 
+    : "https://digibdaywish.vercel.app";
+    
+  const shareUrl = `${baseUrl}/w/${wishId}`;
 
   useEffect(() => {
     const saveWish = async () => {

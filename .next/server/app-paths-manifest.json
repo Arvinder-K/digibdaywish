@@ -1,6 +1,4 @@
 {
   "/api/wish/route": "app/api/wish/route.js",
-  "/api/wish/[id]/route": "app/api/wish/[id]/route.js",
-  "/page": "app/page.js",
-  "/w/[id]/page": "app/w/[id]/page.js"
+  "/page": "app/page.js"
 }

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/kv": "^3.0.0",
     "better-sqlite3": "^12.8.0",
     "canvas-confetti": "^1.9.3",
     "framer-motion": "^11.16.1",
