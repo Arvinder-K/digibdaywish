@@ -1,1 +1,8 @@
 node_modules
+.next
+.env
+.env.local
+digibday.db
+.DS_Store
+dist
+build
