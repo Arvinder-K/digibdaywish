@@ -1,10 +1,7 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import confetti from "canvas-confetti";
+import { encodeWish } from "../../lib/serialization";
 
 export default function Step3Share({ formData, prevStep }) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [wishId, setWishId] = useState("");
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
@@ -17,32 +14,21 @@ export default function Step3Share({ formData, prevStep }) {
     : "https://digibdaywish.vercel.app";
     
   const shareUrl = `${baseUrl}/w/${wishId}`;
-
+    
+  // ⚡ GENERATE STATELESS LINK
   useEffect(() => {
-    const saveWish = async () => {
-      try {
-        const res = await fetch("/api/wish", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          setWishId(data.id);
-          fireSuccessConfetti();
-        } else {
-          setError("Failed to create magic link. Please try again.");
-        }
-      } catch (err) {
-        setError("Network error. Check your connection.");
-      } finally {
-        setLoading(false);
+    try {
+      const id = encodeWish(formData);
+      if (id) {
+        setWishId(id);
+        fireSuccessConfetti();
+      } else {
+        setError("Could not generate your link. Please check your inputs.");
       }
-    };
-
-    saveWish();
-  }, []);
+    } catch (err) {
+      setError("An unexpected error occurred.");
+    }
+  }, [formData]);
 
   const fireSuccessConfetti = () => {
     confetti({
