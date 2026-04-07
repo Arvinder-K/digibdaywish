@@ -1,3 +1,7 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import { encodeWish } from "../../lib/serialization";
 
 export default function Step3Share({ formData, prevStep }) {
