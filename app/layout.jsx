@@ -1,5 +1,6 @@
 import './globals.css'
 import Footer from '../components/Footer'
+import CookieConsent from '../components/CookieConsent'
 
 export const metadata = {
   title: 'DigiBdayWish ✨ - Digital Birthday Gift Creator',
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
             {children}
           </main>
           <Footer />
+          <CookieConsent />
         </div>
       </body>
     </html>

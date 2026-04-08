@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getAllFeedback, updateFeedbackStatus, deleteFeedback, getAnalytics } from '../../../lib/feedback';
-import { Users, MessageCircle, Star, Check, X, Shield, RefreshCw, Trash2 } from 'lucide-react';
+import { getAllFeedback, updateFeedbackStatus, deleteFeedback, getAnalytics, getContactMessages, deleteContactMessage } from '../../../lib/feedback';
+import { Users, MessageCircle, Star, Check, X, Shield, RefreshCw, Trash2, Mail } from 'lucide-react';
 
 export default function AdminDashboard() {
     const [feedback, setFeedback] = useState([]);
+    const [messages, setMessages] = useState([]);
+    const [activeTab, setActiveTab] = useState('feedback'); // 'feedback' | 'messages'
     const [analytics, setAnalytics] = useState({ visits: 0, totalFeedback: 0, approvedCount: 0, avgRating: 0 });
     const [loading, setLoading] = useState(true);
     const router = useRouter();
@@ -23,6 +25,7 @@ export default function AdminDashboard() {
 
     const refreshData = () => {
         setFeedback(getAllFeedback().reverse());
+        setMessages(getContactMessages().reverse());
         setAnalytics(getAnalytics());
     };
 
@@ -35,6 +38,13 @@ export default function AdminDashboard() {
             updateFeedbackStatus(id, action);
         }
         refreshData();
+    };
+
+    const handleMessageDelete = (id) => {
+        if (confirm('Are you sure you want to delete this message?')) {
+            deleteContactMessage(id);
+            refreshData();
+        }
     };
 
     const handleLogout = () => {
@@ -86,16 +96,31 @@ export default function AdminDashboard() {
             {/* Feedback Management */}
             <div style={styles.content}>
                 <div style={styles.sectionHeader}>
-                    <h2 style={styles.sectionTitle}>Feedback Management</h2>
+                    <div style={styles.tabContainer}>
+                        <button 
+                            onClick={() => setActiveTab('feedback')} 
+                            style={{...styles.tabBtn, borderBottom: activeTab === 'feedback' ? '3px solid #8b5cf6' : '3px solid transparent', color: activeTab === 'feedback' ? '#1e293b' : '#64748b'}}
+                        >
+                            Wall of Love ({feedback.length})
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('messages')} 
+                            style={{...styles.tabBtn, borderBottom: activeTab === 'messages' ? '3px solid #8b5cf6' : '3px solid transparent', color: activeTab === 'messages' ? '#1e293b' : '#64748b'}}
+                        >
+                            Inbox ({messages.length})
+                        </button>
+                    </div>
+
                     <button onClick={refreshData} style={styles.refreshBtn}>
                         <RefreshCw size={18} /> Refresh
                     </button>
                 </div>
 
                 <div style={styles.tableContainer}>
-                    <AnimatePresence>
-                        {feedback.length > 0 ? (
-                            feedback.map((item) => (
+                    <AnimatePresence mode="popLayout">
+                        {activeTab === 'feedback' ? (
+                            feedback.length > 0 ? (
+                                feedback.map((item) => (
                                 <motion.div 
                                     key={item.id} 
                                     initial={{ opacity: 0, y: 10 }}
@@ -181,8 +206,44 @@ export default function AdminDashboard() {
                                 </motion.div>
                             ))
                         ) : (
-                            <div style={styles.empty}>No submissions yet. 📥</div>
-                        )}
+                            <div style={styles.empty}>No feedback yet. 📥</div>
+                        )
+                    ) : null}
+                        
+                        {activeTab === 'messages' ? (
+                            messages.length > 0 ? (
+                                messages.map((msg) => (
+                                    <motion.div 
+                                        key={msg.id} 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        style={{...styles.feedbackCard, borderLeft: '6px solid #3b82f6'}}
+                                    >
+                                        <div style={styles.feedbackInfo}>
+                                            <div style={styles.feedbackHeader}>
+                                                <span style={styles.name}>{msg.name}</span>
+                                                <span style={styles.emailBadge}>{msg.email}</span>
+                                            </div>
+                                            <p style={{...styles.message, color: '#1e293b', fontWeight: '500', marginTop: '8px'}}>{msg.message}</p>
+                                            <span style={styles.time}>{new Date(msg.timestamp).toLocaleString()}</span>
+                                        </div>
+                                        
+                                        <div style={styles.actions}>
+                                            <button 
+                                                onClick={() => handleMessageDelete(msg.id)} 
+                                                style={{...styles.actionBtn, background: '#fef2f2', color: '#ef4444'}}
+                                                title="Delete Message"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                ))
+                            ) : (
+                                <div style={styles.empty}>Inbox is empty. 📭</div>
+                            )
+                        ) : null}
                     </AnimatePresence>
                 </div>
             </div>
@@ -282,12 +343,23 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '2rem'
+        marginBottom: '2rem',
+        borderBottom: '1px solid #e2e8f0'
     },
-    sectionTitle: {
-        fontSize: '1.25rem',
+    tabContainer: {
+        display: 'flex',
+        gap: '20px'
+    },
+    tabBtn: {
+        background: 'none',
+        border: 'none',
+        fontSize: '1.1rem',
         fontWeight: '800',
-        color: '#1e293b'
+        padding: '0 0 12px 0',
+        cursor: 'pointer',
+        transition: 'color 0.2s',
+        position: 'relative',
+        top: '1px' // Cover the border
     },
     refreshBtn: {
         display: 'flex',
@@ -379,5 +451,13 @@ const styles = {
         padding: '3rem',
         color: '#94a3b8',
         fontWeight: '600'
+    },
+    emailBadge: {
+        background: '#eff6ff',
+        color: '#3b82f6',
+        padding: '4px 8px',
+        borderRadius: '6px',
+        fontSize: '0.75rem',
+        fontWeight: '700'
     }
 };

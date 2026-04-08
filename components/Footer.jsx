@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, MessageSquare, ExternalLink, Heart, Globe, Github } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { getApprovedFeedback } from '../lib/feedback';
 
 const Footer = () => {
@@ -102,11 +103,20 @@ const Footer = () => {
 
                 {/* 📜 BOTTOM SECTION */}
                 <div style={styles.bottomSection}>
-                    <p style={styles.copyright}>© {new Date().getFullYear()} DigiBdayWish. All rights reserved.</p>
-                    <div style={styles.bottomLinks}>
-                        <span style={styles.bottomLink}>Privacy Policy</span>
-                        <span style={styles.dot}>•</span>
-                        <span style={styles.bottomLink}>Terms of Service</span>
+                    <p style={styles.disclaimerText}>
+                        This site uses cookies and Google Ads to personalize content and ads, and to analyze our traffic.
+                    </p>
+                    <div style={styles.bottomLinksRow}>
+                        <p style={styles.copyright}>© {new Date().getFullYear()} DigiBdayWish. All rights reserved.</p>
+                        <div style={styles.bottomLinks}>
+                            <Link href="/privacy" style={styles.bottomLink}>Privacy Policy</Link>
+                            <span style={styles.dot}>•</span>
+                            <Link href="/terms" style={styles.bottomLink}>Terms of Service</Link>
+                            <span style={styles.dot}>•</span>
+                            <Link href="/about" style={styles.bottomLink}>About</Link>
+                            <span style={styles.dot}>•</span>
+                            <Link href="/contact" style={styles.bottomLink}>Contact</Link>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -253,21 +263,44 @@ const styles = {
         fontSize: '0.85rem',
         fontWeight: '500'
     },
+    disclaimerText: {
+        fontSize: '0.75rem',
+        color: '#475569',
+        textAlign: 'center',
+        marginBottom: '0.5rem',
+        maxWidth: '600px'
+    },
+    bottomLinksRow: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem',
+        width: '100%',
+        '@media (min-width: 768px)': {
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+        }
+    },
     bottomLinks: {
         display: 'flex',
         gap: '12px',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        justifyContent: 'center'
     },
     bottomLink: {
         cursor: 'pointer',
         transition: 'color 0.2s',
+        textDecoration: 'none',
+        color: 'inherit',
         ':hover': { color: '#8b5cf6' }
     },
     dot: {
         opacity: 0.3
     },
     copyright: {
-        opacity: 0.8
+        opacity: 0.8,
+        textAlign: 'center'
     }
 };
 
