@@ -2,6 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
+import EngagementCard from './EngagementCard';
+import { recordVisit } from '../lib/feedback';
 
 // 🎨 ANIMATED DECORATIONS
 const FloatingDecorations = ({ type }) => {
@@ -71,6 +73,7 @@ export default function WishViewer({ wish }) {
 
   useEffect(() => {
     setIsMounted(true);
+    recordVisit();
   }, []);
 
   const handleOpen = () => {
@@ -226,6 +229,8 @@ export default function WishViewer({ wish }) {
                 Create One
               </motion.button>
             </div>
+            
+            <EngagementCard themeColor={wish.theme_color} />
           </motion.div>
         )}
       </AnimatePresence>

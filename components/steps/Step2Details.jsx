@@ -32,6 +32,31 @@ const messageCategories = {
 export default function Step2Details({ formData, updateForm, nextStep, prevStep }) {
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(null);
+  const [errors, setErrors] = useState({ recipient_name: "", message: "" });
+
+  const validate = () => {
+    let newErrors = { recipient_name: "", message: "" };
+    let isValid = true;
+
+    if (!formData.recipient_name.trim()) {
+      newErrors.recipient_name = "Recipient's name is required! 🎈";
+      isValid = false;
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = "Please write a heartfelt message! ✍️";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleNext = () => {
+    if (validate()) {
+      nextStep();
+    }
+  };
 
   const generateMessage = () => {
     const category =
@@ -40,6 +65,7 @@ export default function Step2Details({ formData, updateForm, nextStep, prevStep 
     const messages = messageCategories[category];
     const random = messages[Math.floor(Math.random() * messages.length)];
     updateForm("message", random);
+    setErrors(prev => ({ ...prev, message: "" }));
   };
 
   const playMusic = (track) => {
@@ -65,26 +91,36 @@ export default function Step2Details({ formData, updateForm, nextStep, prevStep 
       <div style={styles.glow2}></div>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        {/* TITLE */}
         <h1 style={styles.title}>Personalize Your Gift</h1>
 
         <div style={styles.card}>
           {/* SECTION 1: RECIPIENT */}
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Recipient's Name</label>
+            <div style={styles.labelRow}>
+              <label style={styles.label}>Recipient's Name</label>
+              <span style={styles.charCount}>{formData.recipient_name.length}/100</span>
+            </div>
             <input
               placeholder="Who is this for?"
               value={formData.recipient_name}
-              onChange={(e) => updateForm("recipient_name", e.target.value)}
-              style={styles.input}
+              maxLength={100}
+              onChange={(e) => {
+                updateForm("recipient_name", e.target.value);
+                if (errors.recipient_name) setErrors(prev => ({ ...prev, recipient_name: "" }));
+              }}
+              style={{...styles.input, borderColor: errors.recipient_name ? "#ef4444" : "#f1f5f9"}}
             />
+            {errors.recipient_name && <p style={styles.errorText}>{errors.recipient_name}</p>}
           </div>
 
           {/* SECTION 2: MESSAGE */}
           <div style={styles.inputGroup}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <div style={styles.labelRow}>
               <label style={styles.label}>Your Message</label>
-              <button onClick={generateMessage} style={styles.aiBtn}>✨ Suggest</button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={styles.charCount}>{formData.message.length}/100</span>
+                <button onClick={generateMessage} style={styles.aiBtn}>✨ Suggest</button>
+              </div>
             </div>
             
             <div style={styles.toggleWrap}>
@@ -106,18 +142,27 @@ export default function Step2Details({ formData, updateForm, nextStep, prevStep 
               <input
                 placeholder="Short & Sweet..."
                 value={formData.message}
-                onChange={(e) => updateForm("message", e.target.value)}
-                style={styles.input}
+                maxLength={100}
+                onChange={(e) => {
+                  updateForm("message", e.target.value);
+                  if (errors.message) setErrors(prev => ({ ...prev, message: "" }));
+                }}
+                style={{...styles.input, borderColor: errors.message ? "#ef4444" : "#f1f5f9"}}
               />
             ) : (
               <textarea
                 placeholder="Heartfelt & Long..."
                 value={formData.message}
-                onChange={(e) => updateForm("message", e.target.value)}
+                maxLength={100}
+                onChange={(e) => {
+                  updateForm("message", e.target.value);
+                  if (errors.message) setErrors(prev => ({ ...prev, message: "" }));
+                }}
                 rows={3}
-                style={styles.textarea}
+                style={{...styles.textarea, borderColor: errors.message ? "#ef4444" : "#f1f5f9"}}
               />
             )}
+            {errors.message && <p style={styles.errorText}>{errors.message}</p>}
           </div>
 
           {/* SECTION 3: THEME COLOR */}
@@ -176,8 +221,7 @@ export default function Step2Details({ formData, updateForm, nextStep, prevStep 
           <div style={styles.btnWrap}>
             <button onClick={prevStep} style={styles.backBtn}>Back</button>
             <button 
-              onClick={nextStep} 
-              disabled={!formData.recipient_name || !formData.message}
+              onClick={handleNext} 
               style={{
                 ...styles.nextBtn,
                 background: `linear-gradient(135deg, ${formData.theme_color}, #a855f7)`,
@@ -233,6 +277,13 @@ const styles = {
     marginBottom: "2rem"
   },
 
+  labelRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px"
+  },
+
   label: {
     display: "block",
     fontSize: "0.85rem",
@@ -240,7 +291,20 @@ const styles = {
     color: "#475569",
     textTransform: "uppercase",
     letterSpacing: "0.05em",
-    marginBottom: "12px"
+  },
+
+  charCount: {
+    fontSize: "0.75rem",
+    fontWeight: "700",
+    color: "#94a3b8"
+  },
+
+  errorText: {
+    color: "#ef4444",
+    fontSize: "0.75rem",
+    fontWeight: "700",
+    marginTop: "8px",
+    textAlign: "left"
   },
 
   input: {

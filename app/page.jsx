@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header';
 import Step1Gift from '../components/steps/Step1Gift';
 import Step2Details from '../components/steps/Step2Details';
-import Step4Donation from '../components/steps/Step4Donation';
+import Step3Feedback from '../components/steps/Step3Feedback';
 import Step3Share from '../components/steps/Step3Share';
 
 export default function MultiStepForm() {
@@ -56,9 +56,7 @@ export default function MultiStepForm() {
         );
       case 3:
         return (
-          <Step4Donation
-            formData={formData}
-            updateForm={updateForm}
+          <Step3Feedback 
             nextStep={nextStep}
             prevStep={prevStep}
           />
