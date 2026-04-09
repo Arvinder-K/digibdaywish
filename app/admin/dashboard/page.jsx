@@ -19,31 +19,37 @@ export default function AdminDashboard() {
             router.push('/admin/login');
             return;
         }
-        refreshData();
-        setLoading(false);
+        refreshData().then(() => {
+            setLoading(false);
+        });
     }, []);
 
-    const refreshData = () => {
-        setFeedback(getAllFeedback().reverse());
-        setMessages(getContactMessages().reverse());
-        setAnalytics(getAnalytics());
+    const refreshData = async () => {
+        const fbReq = await getAllFeedback();
+        setFeedback(fbReq.reverse());
+        
+        const msgReq = await getContactMessages();
+        setMessages(msgReq.reverse());
+        
+        const analyticsReq = await getAnalytics();
+        setAnalytics(analyticsReq);
     };
 
-    const handleAction = (id, action) => {
+    const handleAction = async (id, action) => {
         if (action === 'delete') {
             if (confirm('Are you sure you want to delete this feedback?')) {
-                deleteFeedback(id);
+                await deleteFeedback(id);
             }
         } else {
-            updateFeedbackStatus(id, action);
+            await updateFeedbackStatus(id, action);
         }
-        refreshData();
+        await refreshData();
     };
 
-    const handleMessageDelete = (id) => {
+    const handleMessageDelete = async (id) => {
         if (confirm('Are you sure you want to delete this message?')) {
-            deleteContactMessage(id);
-            refreshData();
+            await deleteContactMessage(id);
+            await refreshData();
         }
     };
 
@@ -55,8 +61,11 @@ export default function AdminDashboard() {
     if (loading) return null;
 
     return (
-        <div style={styles.container}>
-            {/* Header */}
+        <div style={styles.page}>
+            <div style={styles.glow1}></div>
+            <div style={styles.glow2}></div>
+            <div style={styles.container}>
+                {/* Header */}
             <div style={styles.header}>
                 <div style={styles.brand}>
                     <Shield size={24} color="#8b5cf6" />
@@ -248,6 +257,7 @@ export default function AdminDashboard() {
                 </div>
             </div>
         </div>
+        </div>
     );
 }
 
@@ -262,13 +272,42 @@ const StatCard = ({ icon, label, value, bgColor }) => (
 );
 
 const styles = {
+    page: {
+        padding: "0",
+        position: "relative",
+        overflow: "hidden",
+        background: "linear-gradient(135deg,#fdf2f8,#f3e8ff,#eff6ff)",
+        minHeight: "100vh",
+        fontFamily: "'Inter', sans-serif"
+    },
+    glow1: {
+        position: "absolute",
+        width: "40vw",
+        height: "40vw",
+        background: "#f472b6",
+        filter: "blur(100px)",
+        top: "-10vw",
+        left: "-10vw",
+        opacity: 0.15,
+        zIndex: 1
+    },
+    glow2: {
+        position: "absolute",
+        width: "40vw",
+        height: "40vw",
+        background: "#60a5fa",
+        filter: "blur(100px)",
+        bottom: "-10vw",
+        right: "-10vw",
+        opacity: 0.15,
+        zIndex: 1
+    },
     container: {
-        minHeight: '100vh',
-        background: '#f8fafc',
         padding: '2rem',
         maxWidth: '1200px',
         margin: '0 auto',
-        fontFamily: 'Inter, sans-serif'
+        position: 'relative',
+        zIndex: 2
     },
     header: {
         display: 'flex',
@@ -282,19 +321,25 @@ const styles = {
         gap: '12px'
     },
     brandText: {
-        fontSize: '1.25rem',
+        fontSize: '1.5rem',
         fontWeight: '900',
-        color: '#1e293b'
+        background: "linear-gradient(to right, #ec4899, #8b5cf6)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        fontFamily: "'Outfit', sans-serif"
     },
     logoutBtn: {
-        padding: '8px 16px',
-        borderRadius: '10px',
-        background: 'white',
-        border: '1.5px solid #e2e8f0',
+        padding: '10px 20px',
+        borderRadius: '100px',
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.5)',
         color: '#64748b',
         fontWeight: '700',
         cursor: 'pointer',
-        fontSize: '0.85rem'
+        fontSize: '0.9rem',
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+        transition: "all 0.2s ease"
     },
     grid: {
         display: 'grid',
@@ -303,21 +348,24 @@ const styles = {
         marginBottom: '3rem'
     },
     statCard: {
-        background: 'white',
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(20px)',
         padding: '1.5rem',
-        borderRadius: '24px',
+        borderRadius: '32px',
+        border: '1px solid rgba(255, 255, 255, 0.5)',
         display: 'flex',
         alignItems: 'center',
         gap: '16px',
-        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+        boxShadow: '0 20px 40px rgba(0,0,0,0.05)'
     },
     statIcon: {
-        width: '48px',
-        height: '48px',
-        borderRadius: '16px',
+        width: '56px',
+        height: '56px',
+        borderRadius: '24px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        boxShadow: '0 10px 20px rgba(0,0,0,0.05)'
     },
     statContent: {
         display: 'flex',
@@ -325,26 +373,29 @@ const styles = {
     },
     statLabel: {
         color: '#64748b',
-        fontSize: '0.85rem',
+        fontSize: '0.9rem',
         fontWeight: '600'
     },
     statValue: {
-        fontSize: '1.5rem',
+        fontSize: '1.75rem',
         fontWeight: '900',
         color: '#1e293b'
     },
     content: {
-        background: 'white',
-        borderRadius: '32px',
-        padding: '2rem',
-        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)'
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: '40px',
+        padding: '2.5rem',
+        border: '1px solid rgba(255, 255, 255, 0.5)',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.05)'
     },
     sectionHeader: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '2rem',
-        borderBottom: '1px solid #e2e8f0'
+        borderBottom: '1px solid rgba(0,0,0,0.05)',
+        paddingBottom: '1.5rem'
     },
     tabContainer: {
         display: 'flex',
@@ -353,38 +404,43 @@ const styles = {
     tabBtn: {
         background: 'none',
         border: 'none',
-        fontSize: '1.1rem',
+        fontSize: '1.15rem',
         fontWeight: '800',
-        padding: '0 0 12px 0',
+        padding: '0 0 16px 0',
         cursor: 'pointer',
         transition: 'color 0.2s',
         position: 'relative',
-        top: '1px' // Cover the border
+        top: '1px',
+        fontFamily: "'Outfit', sans-serif"
     },
     refreshBtn: {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        background: 'none',
+        background: 'rgba(139, 92, 246, 0.1)',
+        padding: '8px 16px',
+        borderRadius: '100px',
         border: 'none',
         color: '#8b5cf6',
         fontWeight: '700',
         cursor: 'pointer',
-        fontSize: '0.9rem'
+        fontSize: '0.9rem',
+        transition: 'all 0.2s ease'
     },
     tableContainer: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '12px'
+        gap: '16px'
     },
     feedbackCard: {
-        background: '#f8fafc',
-        padding: '1.25rem',
-        borderRadius: '16px',
+        background: 'rgba(255, 255, 255, 0.9)',
+        padding: '1.5rem',
+        borderRadius: '24px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '20px'
+        gap: '20px',
+        boxShadow: '0 10px 20px rgba(0,0,0,0.03)'
     },
     feedbackInfo: {
         flex: 1
@@ -393,42 +449,44 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
-        marginBottom: '8px'
+        marginBottom: '12px'
     },
     name: {
         fontWeight: '800',
-        color: '#1e293b'
+        color: '#1e293b',
+        fontSize: '1.05rem'
     },
     ratingStars: {
         display: 'flex',
         gap: '2px'
     },
     statusBadge: {
-        padding: '4px 10px',
-        borderRadius: '8px',
-        fontSize: '0.7rem',
-        fontWeight: '900',
-        letterSpacing: '0.05em'
+        padding: '6px 12px',
+        borderRadius: '100px',
+        fontSize: '0.75rem',
+        fontWeight: '800',
+        letterSpacing: '0.05em',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
     },
     tagGrid: {
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '6px',
+        gap: '8px',
         margin: '12px 0'
     },
     tagChip: {
         background: 'white',
-        padding: '8px 14px',
-        borderRadius: '10px',
+        padding: '8px 16px',
+        borderRadius: '100px',
         fontSize: '0.9rem',
         fontWeight: '700',
-        color: '#0f172a', // Darker text for clarity
-        border: '2px solid #e2e8f0', // Thicker border
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+        color: '#1e293b',
+        border: '1.5px solid #e2e8f0',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.03)'
     },
     time: {
-        fontSize: '0.8rem',
-        color: '#475569', // Darker gray for clarity
+        fontSize: '0.85rem',
+        color: '#64748b',
         fontWeight: '600'
     },
     actions: {
@@ -436,28 +494,31 @@ const styles = {
         gap: '8px'
     },
     actionBtn: {
-        width: '40px',
-        height: '40px',
-        borderRadius: '12px',
+        width: '44px',
+        height: '44px',
+        borderRadius: '16px',
         border: 'none',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        transition: 'all 0.2s'
+        transition: 'all 0.2s ease',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
     },
     empty: {
         textAlign: 'center',
-        padding: '3rem',
+        padding: '4rem',
         color: '#94a3b8',
-        fontWeight: '600'
+        fontWeight: '700',
+        fontSize: '1.1rem'
     },
     emailBadge: {
         background: '#eff6ff',
         color: '#3b82f6',
-        padding: '4px 8px',
-        borderRadius: '6px',
-        fontSize: '0.75rem',
-        fontWeight: '700'
+        padding: '6px 12px',
+        borderRadius: '100px',
+        fontSize: '0.8rem',
+        fontWeight: '800',
+        boxShadow: '0 4px 6px rgba(59, 130, 246, 0.1)'
     }
 };

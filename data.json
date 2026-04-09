@@ -1,0 +1,30 @@
+{
+  "feedback": [
+    {
+      "id": "1775717138077",
+      "name": "Anonymous",
+      "message": "🎉 Loved the design",
+      "rating": 5,
+      "status": "approved",
+      "timestamp": "2026-04-09T06:45:38.077Z"
+    },
+    {
+      "id": "1775717303171",
+      "name": "Anonymous",
+      "message": "😊 Easy to use",
+      "rating": 5,
+      "status": "approved",
+      "timestamp": "2026-04-09T06:48:23.171Z"
+    },
+    {
+      "id": "1775718838517",
+      "name": "Anonymous",
+      "message": "🚀 Fast experience",
+      "rating": 5,
+      "status": "approved",
+      "timestamp": "2026-04-09T07:13:58.517Z"
+    }
+  ],
+  "messages": [],
+  "visits": 0
+}

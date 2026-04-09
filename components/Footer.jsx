@@ -14,15 +14,20 @@ const Footer = () => {
     useEffect(() => {
         if (pathname.startsWith('/admin')) return;
         
-        const feedback = getApprovedFeedback();
-        setApprovedFeedback(feedback);
-        
-        if (feedback.length > 1) {
-            const interval = setInterval(() => {
-                setCurrentIndex(prev => (prev + 1) % feedback.length);
-            }, 6000);
-            return () => clearInterval(interval);
-        }
+        let interval;
+        getApprovedFeedback().then(feedback => {
+            setApprovedFeedback(feedback);
+            
+            if (feedback.length > 1) {
+                interval = setInterval(() => {
+                    setCurrentIndex(prev => (prev + 1) % feedback.length);
+                }, 6000);
+            }
+        }).catch(console.error);
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
     }, [pathname]);
 
     if (pathname.startsWith('/admin')) return null;
@@ -272,14 +277,12 @@ const styles = {
     },
     bottomLinksRow: {
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         alignItems: 'center',
+        justifyContent: 'space-between',
         gap: '0.5rem',
-        width: '100%',
-        '@media (min-width: 768px)': {
-            flexDirection: 'row',
-            justifyContent: 'space-between'
-        }
+        width: '100%'
     },
     bottomLinks: {
         display: 'flex',
@@ -292,8 +295,7 @@ const styles = {
         cursor: 'pointer',
         transition: 'color 0.2s',
         textDecoration: 'none',
-        color: 'inherit',
-        ':hover': { color: '#8b5cf6' }
+        color: 'inherit'
     },
     dot: {
         opacity: 0.3

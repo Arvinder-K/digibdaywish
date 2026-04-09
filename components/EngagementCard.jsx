@@ -24,7 +24,7 @@ const EngagementCard = ({ themeColor }) => {
     const [analytics, setAnalytics] = useState({ visits: 0, totalFeedback: 0, approvedCount: 0, avgRating: 0 });
 
     useEffect(() => {
-        setAnalytics(getAnalytics());
+        getAnalytics().then(setAnalytics).catch(console.error);
     }, [formStatus]);
 
     const toggleTag = (tag) => {
@@ -76,7 +76,7 @@ const EngagementCard = ({ themeColor }) => {
 
         setFormStatus('submitting');
         try {
-            saveFeedback(data);
+            await saveFeedback(data);
             setFormStatus('success');
             setTimeout(() => {
                 setIsModalOpen(false);

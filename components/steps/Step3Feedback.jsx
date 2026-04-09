@@ -30,13 +30,13 @@ export default function Step3Feedback({ nextStep, prevStep }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (rating === 0 || selectedTags.length === 0) return;
     
     setIsSubmitting(true);
     try {
-      saveFeedback({ 
+      await saveFeedback({ 
         name, 
         message: selectedTags.join(", "), 
         rating 

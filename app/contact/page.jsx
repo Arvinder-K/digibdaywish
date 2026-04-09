@@ -7,7 +7,7 @@ import { saveContactMessage } from '../../lib/feedback';
 export default function ContactPage() {
     const [status, setStatus] = useState('idle'); // idle | submitting | success
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus('submitting');
         
@@ -19,7 +19,7 @@ export default function ContactPage() {
         };
         
         try {
-            saveContactMessage(data);
+            await saveContactMessage(data);
             setTimeout(() => {
                 setStatus('success');
                 e.target.reset(); // Clear form
